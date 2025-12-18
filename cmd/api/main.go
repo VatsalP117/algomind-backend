@@ -30,6 +30,7 @@ func main() {
 	userHandler := handlers.NewUserHandler(db) 
 	conceptHandler := handlers.NewConceptHandler(db)
 	itemHandler := handlers.NewItemHandler(db)
+	reviewHandler := handlers.NewReviewHandler(db)
 
 	api := srv.Echo.Group("/api")
 	protected := api.Group("/v1")
@@ -37,6 +38,7 @@ func main() {
 	protected.GET("/profile", userHandler.GetProfile)
 	protected.GET("/concepts", conceptHandler.ListConcepts)
 	protected.POST("/items", itemHandler.CreateItem)
+	protected.GET("/reviews/queue", reviewHandler.GetQueue)
 	if err := srv.Start(); err != nil {
 		log.Fatal(err)
 	}
