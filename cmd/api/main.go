@@ -29,12 +29,14 @@ func main() {
 	// We need to update NewUserHandler to accept the DB (see Step 6)
 	userHandler := handlers.NewUserHandler(db) 
 	conceptHandler := handlers.NewConceptHandler(db)
+	itemHandler := handlers.NewItemHandler(db)
 
 	api := srv.Echo.Group("/api")
 	protected := api.Group("/v1")
 	protected.Use(authMiddleware.RequireAuth)
 	protected.GET("/profile", userHandler.GetProfile)
 	protected.GET("/concepts", conceptHandler.ListConcepts)
+	protected.POST("/items", itemHandler.CreateItem)
 	if err := srv.Start(); err != nil {
 		log.Fatal(err)
 	}

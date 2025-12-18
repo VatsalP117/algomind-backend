@@ -38,3 +38,11 @@ type ReviewLog struct {
 	Rating     string    `json:"rating"` // AGAIN, HARD, GOOD, EASY
 	ReviewedAt time.Time `json:"reviewed_at"`
 }
+
+// Incoming JSON for creating a new item
+type CreateItemRequest struct {
+	Type         string `json:"type" validate:"required,oneof=PROBLEM CONCEPT"` // Validator ensures it's one of these two
+	ConceptID    *int64 `json:"concept_id"` // Nullable (if it's a root concept)
+	ProblemTitle string `json:"problem_title"`
+	ProblemLink  string `json:"problem_link"`
+}
