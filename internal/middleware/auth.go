@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/clerk/clerk-sdk-go/v2/jwt" // <--- The new package for verification
@@ -26,6 +27,20 @@ func (am *AuthMiddleware) RequireAuth(next echo.HandlerFunc) echo.HandlerFunc {
 		if token == "" {
 			return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Missing Authorization header"})
 		}
+
+		//DEV MODE
+		// --- NEW: DEV MODE BYPASS ---
+		// If we are in dev mode and send "Bearer dev", skip validation
+		if os.Getenv("APP_ENV") == "development" && token == "dev" {
+			// Hardcode the user ID from env
+			testUserID := os.Getenv("TEST_USER_ID")
+			if testUserID == "" {
+				return c.JSON(http.StatusInternalServerError, map[string]string{"error": "TEST_USER_ID not set"})
+			}
+			c.Set("user_id", testUserID)
+			return next(c)
+		}
+		// -----------------------------
 
 		// 2. Verify the token using the 'jwt' package
 		// We pass the Request Context because that's where the request lifecycle lives
