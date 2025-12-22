@@ -5,42 +5,27 @@ import (
 
 	"github.com/VatsalP117/algomind-backend/internal/config"
 	"github.com/VatsalP117/algomind-backend/internal/database"
-	"github.com/VatsalP117/algomind-backend/internal/handlers" // We will create this next
-	"github.com/VatsalP117/algomind-backend/internal/middleware"
 	"github.com/VatsalP117/algomind-backend/internal/server"
 )
 
 func main() {
 	cfg := config.Load()
-
-	// 1. Initialize Database
-	db, err := database.New(cfg.DatabaseURL)
-	if err != nil {
-		log.Fatal(err)
-	}
-	// Defer closing the connection until the app stops
+	db := mustInitDb(cfg.DatabaseURL)
 	defer db.Close()
-	log.Println("Connected to Database!")
 
 	srv := server.NewServer(cfg)
-	authMiddleware := middleware.New()
-	
-	// 2. Pass the DB to the Handler
-	// We need to update NewUserHandler to accept the DB (see Step 6)
-	userHandler := handlers.NewUserHandler(db) 
-	conceptHandler := handlers.NewConceptHandler(db)
-	itemHandler := handlers.NewItemHandler(db)
-	reviewHandler := handlers.NewReviewHandler(db)
-
-	api := srv.Echo.Group("/api")
-	protected := api.Group("/v1")
-	protected.Use(authMiddleware.RequireAuth)
-	protected.GET("/profile", userHandler.GetProfile)
-	protected.GET("/concepts", conceptHandler.ListConcepts)
-	protected.POST("/items", itemHandler.CreateItem)
-	protected.GET("/reviews/queue", reviewHandler.GetQueue)
-	protected.POST("/reviews/:id/log", reviewHandler.LogReview)
+	server.RegisterRoutes(srv.Echo, db)
 	if err := srv.Start(); err != nil {
-		log.Fatal(err)
+		log.Fatal("Server failed to start:", err)
 	}
+	
+}
+
+func mustInitDb(dsn string) *database.Service{
+	db, err := database.New(dsn)
+	if err != nil {
+		log.Fatal("Could not connect to database:", err)
+	}
+	log.Println("Connected to database")
+	return db
 }

@@ -10,31 +10,20 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// This file does three things:
-
-// Injects Dependencies: It takes your Config and stores it.
-
-// Initializes Echo: It sets up the web server instance.
-
-// Configures Middleware: It adds the standard "must-have" middleware (Logging, Recover, CORS).
-
 type Server struct {
 	Echo *echo.Echo
 	Config *config.Config
 }
 
 func NewServer(cfg *config.Config) *Server {
-	// Step 0: Initialize Clerk SDK globally
-	clerk.SetKey(cfg.ClerkSecretKey)
 
-	
+	clerk.SetKey(cfg.ClerkSecretKey)
 	e := echo.New()
 
-	// 1. HIde the startup banner (so we have cleaner logs)
 	e.HideBanner = true
 	e.HidePort = true
 
-	// 2. Add Essential Middleware
+	
 	// Recover: If your app crashes (panics), this catches it and keeps the server running
 	e.Use(middleware.Recover())
 
@@ -52,6 +41,9 @@ func NewServer(cfg *config.Config) *Server {
 	e.GET("/health",func(c echo.Context) error {
 		return c.JSON(http.StatusOK,map[string]string{"status":"OK"})
 	})
+
+
+	e.Validator = NewValidator()
 
 	return &Server{
 		Echo: e,
