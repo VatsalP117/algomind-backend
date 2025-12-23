@@ -26,31 +26,32 @@ func (h *ReviewHandler) GetQueue(c echo.Context) error {
 
 	query := `
 		SELECT
-			rs.entity_type,
-			rs.entity_id,
-			rs.next_review_at,
+	rs.entity_type,
+	rs.entity_id,
+	rs.next_review_at,
 
-			-- Problem fields
-			p.title,
-			p.summary,
-			p.answer,
-			p.hints,
-			p.difficulty,
+	-- Problem fields
+	p.title      AS problem_title,
+	p.difficulty AS difficulty,
+	p.summary    AS summary,
+	p.answer     AS answer,
+	p.hints      AS hints,
 
-			-- Concept fields
-			con.title   AS title,
-			con.content AS content
-		FROM review_states rs
-		LEFT JOIN problems p
-			ON rs.entity_type = 'problem'
-		   AND rs.entity_id = p.id
-		LEFT JOIN concepts con
-			ON rs.entity_type = 'concept'
-		   AND rs.entity_id = con.id
-		WHERE rs.user_id = $1
-		  AND rs.next_review_at <= NOW()
-		ORDER BY rs.next_review_at ASC
-		LIMIT 50
+	-- Concept fields
+	con.title    AS concept_title,
+	con.content  AS content
+FROM review_states rs
+LEFT JOIN problems p
+	ON rs.entity_type = 'problem'
+   AND rs.entity_id = p.id
+LEFT JOIN concepts con
+	ON rs.entity_type = 'concept'
+   AND rs.entity_id = con.id
+WHERE rs.user_id = $1
+  AND rs.next_review_at <= NOW()
+ORDER BY rs.next_review_at ASC
+LIMIT 50
+
 	`
 
 	var queue []dto.ReviewQueueItem
@@ -58,7 +59,7 @@ func (h *ReviewHandler) GetQueue(c echo.Context) error {
 	if err := h.DB.Db.SelectContext(ctx, &queue, query, userID); err != nil {
 		return echo.NewHTTPError(
 			http.StatusInternalServerError,
-			"failed to fetch review queue",
+			err.Error(),
 		)
 	}
 

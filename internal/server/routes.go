@@ -16,6 +16,10 @@ func RegisterRoutes (e *echo.Echo, db *database.Service) {
 	reviewHandler := handlers.NewReviewHandler(db)
 	conceptHandler := handlers.NewConceptHandler(db)
 
+	internalConceptHandler := handlers.NewInternalConceptHandler(db)
+	internal := e.Group("/internal")
+	internal.POST("/concepts", internalConceptHandler.CreateConcept)
+
 	// register the routes
 	api := e.Group("/api/v1")
 	api.Use(authMiddleware.RequireAuth)
