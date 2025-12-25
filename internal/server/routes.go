@@ -16,9 +16,13 @@ func RegisterRoutes (e *echo.Echo, db *database.Service) {
 	reviewHandler := handlers.NewReviewHandler(db)
 	conceptHandler := handlers.NewConceptHandler(db)
 
+
 	internalConceptHandler := handlers.NewInternalConceptHandler(db)
+	internalProblemHandler := handlers.NewInternalProblemHandler(db)
 	internal := e.Group("/internal")
+	internal.Use(authMiddleware.RequireAuth)
 	internal.POST("/concepts", internalConceptHandler.CreateConcept)
+	internal.GET("/problems", internalProblemHandler.GetAllProblems)
 
 	// register the routes
 	api := e.Group("/api/v1")
