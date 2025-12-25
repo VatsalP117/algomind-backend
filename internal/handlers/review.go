@@ -40,18 +40,17 @@ func (h *ReviewHandler) GetQueue(c echo.Context) error {
 	-- Concept fields
 	con.title    AS concept_title,
 	con.content  AS content
-FROM review_states rs
-LEFT JOIN problems p
+	FROM review_states rs
+	LEFT JOIN problems p
 	ON rs.entity_type = 'problem'
-   AND rs.entity_id = p.id
-LEFT JOIN concepts con
+   	AND rs.entity_id = p.id
+	LEFT JOIN concepts con
 	ON rs.entity_type = 'concept'
-   AND rs.entity_id = con.id
-WHERE rs.user_id = $1
-  AND rs.next_review_at <= NOW()
-ORDER BY rs.next_review_at ASC
-LIMIT 50
-
+   	AND rs.entity_id = con.id
+	WHERE rs.user_id = $1
+  	AND rs.next_review_at <= NOW()
+	ORDER BY rs.next_review_at ASC
+	LIMIT 50
 	`
 
 	var queue []dto.ReviewQueueItem

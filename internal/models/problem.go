@@ -2,7 +2,6 @@ package models
 
 import "time"
 
-// Problem = A coding problem added by user
 type Problem struct {
 	ID           int64     `db:"id"`
 	UserID       int64     `db:"user_id"`

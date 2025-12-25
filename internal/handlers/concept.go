@@ -16,7 +16,6 @@ func NewConceptHandler(db *database.Service) *ConceptHandler {
 	return &ConceptHandler{DB: db}
 }
 
-// ListConcepts returns all global concepts
 func (h *ConceptHandler) ListConcepts(c echo.Context) error {
 	var concepts []models.Concept
 
